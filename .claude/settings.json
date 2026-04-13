@@ -1,0 +1,77 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(.claude/skills/**)",
+      "Read(.claude/**)",
+      "Read(.claude/settings.json)",
+
+      "Edit(.claude/skills/**)",
+      "Edit(.claude/**)",
+
+      "Write(.claude/skills/**)",
+      "Write(.claude/**)",
+
+      "Bash(mkdir *)",
+      "Bash(claude mcp:*)",
+      "Bash(curl *)",
+      "Bash(diff *)",
+      "Bash(find *)",
+      "Bash(grep *)",
+      "Bash(gh issue *)",
+      "Bash(gh api *)",
+      "Bash(gh pr view *)",
+      "Bash(git add:*)",
+      "Bash(git checkout:*)",
+      "Bash(git check-ignore:*)",
+      "Bash(git diff:*)",
+      "Bash(git fetch:*)",
+      "Bash(git ls-files:*)",
+      "Bash(git mv:*)",
+      "Bash(git pull:*)",
+      "Bash(git stash:*)",
+      "Bash(git status:*)",
+      "Bash(git log:*)",
+      "Bash(ls:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run lint:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npx next:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx skills:*)",
+      "Bash(pyright:*)",
+      "Bash(pytest:*)",
+      "Bash(python:*)",
+      "Bash(ruff check:*)",
+      "Bash(source .venv/bin/activate)",
+      "Bash(uv *)",
+      "Bash(echo \"exit: $?\")",
+      "WebFetch",
+      "WebSearch",
+      "mcp__chrome-devtools__*",
+      "mcp__plugin_playwright_playwright__*",
+      "Skill(update-config)",
+      "Skill(update-config:*)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ \"${CI:-}\" = \"true\" ]; then exit 0; fi; cd backend && if [ ! -f .venv/bin/activate ] && command -v uv > /dev/null 2>&1; then uv sync --extra dev; fi && if [ -f .venv/bin/activate ]; then . .venv/bin/activate; fi"
+          },
+          {
+            "type": "command",
+            "command": "if [ \"${CI:-}\" = \"true\" ]; then exit 0; fi; cd frontend && if [ ! -d node_modules ]; then npm install --silent; fi"
+          },
+          {
+            "type": "command",
+            "command": "if [ \"${CI:-}\" = \"true\" ]; then exit 0; fi; if ! command -v gh > /dev/null 2>&1; then mkdir -p ~/.local/bin && GH_VERSION=$(curl -fsSL https://api.github.com/repos/cli/cli/releases/latest | grep -oP '\"tag_name\": \"v\\K[^\"]+') && curl -fsSL -o /tmp/gh.tar.gz \"https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_linux_amd64.tar.gz\" && tar -xzf /tmp/gh.tar.gz -C /tmp && cp /tmp/gh_${GH_VERSION}_linux_amd64/bin/gh ~/.local/bin/ && rm -rf /tmp/gh.tar.gz /tmp/gh_${GH_VERSION}_linux_amd64; fi"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "servers": {
+    "chrome-devtools": {
+      "command": "npx",
+      "args": [
+        "chrome-devtools-mcp@latest",
+        "--headless",
+        "--executablePath", "/usr/bin/chromium",
+        "--chrome-arg=--no-sandbox",
+        "--chrome-arg=--disable-setuid-sandbox"
+      ]
+    }
+  }
+}
