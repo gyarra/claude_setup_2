@@ -176,14 +176,6 @@ Each container will:
 
 No conflicts — they're completely isolated from each other.
 
-### Run Modes
-
-| Mode | When to use | Host impact |
-|------|------------|-------------|
-| **Isolated** (no mount) | Autonomous tasks — "implement this issue and open a PR" | None — container clones and pushes independently |
-| **Shared workspace** (`-v $(pwd):/workspace`) | Interactive/collaborative work where you want to see changes live | Direct — changes appear on your host immediately |
-| **Git worktree** (`-v ../worktree:/workspace`) | Autonomous tasks without cloning, using your local git history | Minimal — separate branch directory, main tree untouched |
-
 See [`docs/claude-docker.md`](docs/claude-docker.md) for detailed volume mounts, environment variables, and troubleshooting.
 
 ## Cross-Model Review Agents

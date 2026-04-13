@@ -16,11 +16,9 @@ Run this once (and again whenever `Dockerfile-claude` changes):
 docker build -f Dockerfile-claude -t claude-sandbox .
 ```
 
-## Run Modes
+## Running a Container
 
-### Isolated mode
-
-No workspace mount at all. Claude must clone the repo inside the container (using the mounted `gh` credentials), do its work, and push to origin. When the container exits, nothing is left on the host.
+Each container is fully isolated — no workspace mount, no access to your host filesystem. Claude clones the repo inside the container using the mounted `gh` credentials, does its work, and pushes to origin. When the container exits, nothing is left on the host.
 
 ```bash
 docker run -it --rm \
@@ -33,51 +31,29 @@ docker run -it --rm \
   sh -c '/home/claude/init.sh claude --dangerously-skip-permissions'
 ```
 
-Use this for fully autonomous runs (e.g. "implement this issue and open a PR") where complete isolation is preferred.
+The `--dangerously-skip-permissions` flag is safe here because the container is sandboxed — it can't access your host filesystem, other containers, or anything outside its own isolated environment.
 
+### Running Multiple Containers in Parallel
 
-### Shared workspace
-
-Mounts your current directory directly into the container. Changes Claude makes are immediately visible on the host — same files, same git history.
+You can spin up multiple containers working on different issues simultaneously. Each one clones the repo independently, creates its own feature branch, and pushes when done. They share nothing except the remote repository.
 
 ```bash
+# Terminal 1 — issue #42
 docker run -it --rm \
-  -v $(pwd):/workspace \
   -v ~/.claude:/tmp/.claude.seed:ro \
   -v ~/.claude.json:/tmp/.claude.json.seed:ro \
   -v ~/.config/gh:/home/claude/.config/gh:ro \
   --env-file backend/.env \
   --env-file frontend/.env.local \
   claude-sandbox \
-  sh -c '/home/claude/init.sh claude --dangerously-skip-permissions'
+  sh -c '/home/claude/init.sh claude --dangerously-skip-permissions \
+    -p "Clone the repo, then implement issue #42 using s-ship-feature"'
+
+# Terminal 2 — issue #43 (same command, different issue)
+docker run -it --rm ...same flags... \
+  sh -c '/home/claude/init.sh claude --dangerously-skip-permissions \
+    -p "Clone the repo, then implement issue #43 using s-ship-feature"'
 ```
-
-Use this for collaborative/interactive work where you want to see changes as they happen.
-
-### Separate git worktree
-
-Creates an isolated branch via `git worktree` and mounts that instead. Your main working tree is untouched — Claude works on a separate branch in a separate directory.
-
-```bash
-# Create a worktree branching from main (one-time per task)
-git worktree add ../docker-workspace-1 -b feature/my-feature main
-
-# Run Docker pointing at the worktree
-docker run -it --rm \
-  -v $(pwd)/../docker-workspace-1:/workspace \
-  -v ~/.claude:/tmp/.claude.seed:ro \
-  -v ~/.claude.json:/tmp/.claude.json.seed:ro \
-  -v ~/.config/gh:/home/claude/.config/gh:ro \
-  --env-file backend/.env \
-  --env-file frontend/.env.local \
-  claude-sandbox \
-  sh -c '/home/claude/init.sh claude --dangerously-skip-permissions'
-
-# Clean up when done
-git worktree remove ../docker-workspace-1
-```
-
-Use this for autonomous tasks where you don't want Claude touching your current working tree.
 
 
 ## How Startup Works
@@ -96,7 +72,6 @@ Chromium is installed in the image but **not started at container startup**. Whe
 
 | Volume | Purpose |
 |--------|---------|
-| `$(pwd):/workspace` | Mounts the project directory (shared/worktree modes) |
 | `~/.claude:/tmp/.claude.seed:ro` | Claude settings seed — copied into the container at startup |
 | `~/.claude.json:/tmp/.claude.json.seed:ro` | Claude config seed — same copy-on-start approach |
 | `~/.config/gh:/home/claude/.config/gh:ro` | GitHub CLI credentials |
