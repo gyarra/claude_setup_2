@@ -31,8 +31,6 @@ A ready-to-use scaffolding for AI-assisted development workflows with Claude Cod
 |---------------|---------|
 | `copilot-instructions.md` | Project-wide coding conventions (template with `[PLACEHOLDERS]`) |
 | `copilot-review-instructions.md` | Code review checklist for Copilot and AI reviewers |
-| `agents/pr_push_agent.md` | GitHub agent for PR workflow automation |
-| `instructions/` | How-to guides for cloud tools (Chrome DevTools MCP, code review) |
 | `workflows/` | CI/CD workflows: lint, typecheck, test, build, Claude review, Codex review |
 
 ### Root Files
