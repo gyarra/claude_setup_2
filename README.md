@@ -105,7 +105,7 @@ Search for `[PLACEHOLDER]` tokens throughout the codebase and replace with your 
 ### 4. Add project-specific skills
 
 Create new skills in `.claude/skills/` for domain-specific workflows. Follow the naming convention:
-- `s-` prefix for all skills
+- `s-` prefix for all skills (this makes it easy auto-complete search for repo skills, as opposed to base Claude skills)
 - `s-pr-` prefix for PR-related skills
 - Include a `description:` in the YAML frontmatter starting with "Use when..."
 
